@@ -87,7 +87,10 @@ local function notifyUser()
   end
 
   if soundEnabled then
-    local customPath = noctalia.getConfig("custom_sound_path")
+    local customPath = noctalia.state.get("timer.custom_sound_path")
+    if not customPath or customPath == "" then
+      customPath = noctalia.getConfig("custom_sound_path")
+    end
     local audioTarget = ""
 
     if customPath and customPath ~= "" then
@@ -101,7 +104,7 @@ local function notifyUser()
       end
 
       if dir == "" then
-        dir = "/home/rousseau/.local/state/noctalia/plugins/materialized/community/timer-sound"
+        dir = "/home/rousseau/.local/state/noctalia/plugins/materialized/codeloverkawai/timer-sound"
       end
       audioTarget = `{dir}/alarm.mp3`
     end

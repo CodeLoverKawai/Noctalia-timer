@@ -52,14 +52,25 @@ local function parseDigits(digits)
   return hours * (60 ^ 2) + mins * 60 + secs
 end
 
+local customSoundPath = ""
+local customSoundName = ""
+
 local function render()
   local remainingText = remaining > 0 and formattedTime or "--:--"
 
   local btnText = STATE == "RUNNING" and noctalia.tr("ui.pause") or noctalia.tr("ui.start")
   local btnVariant = STATE == "RUNNING" and "secondary" or "primary"
+  local soundLabel = "🔔 Alarma: " .. (customSoundName ~= "" and customSoundName or "Por defecto (alarm.mp3)")
 
   panel.render(ui.column({ gap = 10, padding = 14 }, {
-    ui.label({ text = noctalia.tr("ui.duration_label"), fontSize = 16, fontWeight = "bold", color = "primary" }),
+    ui.row({ justify = "space_between", align = "center" }, {
+      ui.label({ text = noctalia.tr("ui.duration_label"), fontSize = 16, fontWeight = "bold", color = "primary" }),
+      ui.button({
+        text = "🎵 Cambiar audio",
+        variant = "ghost",
+        onClick = "onPickAudio",
+      }),
+    }),
     ui.column({ gap = 6, padding = 8, fill = "surface_variant/0.4", radius = 8 }, {
       ui.row({ justify = "center" }, {
         ui.label({
@@ -78,6 +89,11 @@ local function render()
         onChange = "onInputChange",
         onSubmit = "onInputSubmit",
         enabled = STATE == "IDLE"
+      }),
+      ui.label({
+        text = soundLabel,
+        fontSize = 11,
+        color = "outline",
       }),
     }),
     ui.row({ gap = 6, justify = "space_between" }, {
@@ -125,13 +141,32 @@ local function resetInputDigits()
   updateInputDigits()
 end
 
+local function updateSoundInfo()
+  local soundPath = noctalia.state.get("timer.custom_sound_path") or ""
+  if soundPath == "" then
+    soundPath = noctalia.getConfig("custom_sound_path") or ""
+  end
+  customSoundPath = soundPath
+  if customSoundPath ~= "" then
+    customSoundName = customSoundPath:match("([^/]+)$") or customSoundPath
+  else
+    customSoundName = ""
+  end
+end
+
 function onOpen(_context)
   STATE = noctalia.state.get("timer.state")
   remaining = noctalia.state.get("timer.remaining")
   formattedTime = noctalia.state.get("timer.formattedTime") or "0"
+  updateSoundInfo()
   resetInputDigits()
   render()
 end
+
+noctalia.state.watch("timer.custom_sound_path", function(_val)
+  updateSoundInfo()
+  render()
+end)
 
 noctalia.state.watch("timer.state", function(value)
   if STATE == "NOTIFY" and value == "IDLE" then
@@ -231,4 +266,21 @@ end
 
 function onPreset45()
   applyPreset(2700)
+end
+
+function onPickAudio()
+  if noctalia.runAsync then
+    local cmd = 'zenity --file-selection --title="Seleccionar sonido de alarma" --file-filter="Archivos de audio | *.mp3 *.wav *.ogg *.flac" 2>/dev/null || kdialog --getopenfilename ~ "*.mp3 *.wav *.ogg *.flac" 2>/dev/null'
+    noctalia.runAsync(cmd, function(result)
+      if result and result.stdout then
+        local picked = result.stdout:gsub("[\r\n]+$", "")
+        if picked and picked ~= "" then
+          noctalia.state.set("timer.custom_sound_path", picked)
+          customSoundPath = picked
+          customSoundName = picked:match("([^/]+)$") or picked
+          render()
+        end
+      end
+    end)
+  end
 end
