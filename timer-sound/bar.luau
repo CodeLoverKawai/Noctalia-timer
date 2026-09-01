@@ -70,15 +70,18 @@ local function render()
   end
 end
 
--- update needed for initial load
+-- Initialize immediately on load
+isVertical = barWidget.isVertical()
+STATE = noctalia.state.get("timer.state") or "IDLE"
+formattedTime = noctalia.state.get("timer.formattedTime") or "00:00"
+render()
+
 function update()
   isVertical = barWidget.isVertical()
   render()
 end
 
 noctalia.state.watch("timer.state", function(value)
-  -- if state was RUNNING and is updated to something else,
-  -- we disable the tooltip
   if isVertical and STATE == "RUNNING" and value ~= "RUNNING" then
     Tooltip.hide()
   end
@@ -89,15 +92,13 @@ end)
 
 noctalia.state.watch("timer.formattedTime", function(value)
   formattedTime = value
-  if STATE == "RUNNING" then
+  if STATE == "RUNNING" or STATE == "PAUSED" then
     render()
   end
 end)
 
 function onClick()
   if STATE == "NOTIFY" then
-    -- click on the bar when timer is done should stop NOTIFY state and
-    -- should not open the panel. the user most likely don't want to set another timer
     noctalia.state.set("timer.cmd", "RESET")
     return
   end
