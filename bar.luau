@@ -101,5 +101,5 @@ function onClick()
     noctalia.state.set("timer.cmd", "RESET")
     return
   end
-  noctalia.togglePanel("community/timer-sound:panel")
+  noctalia.togglePanel("noctalia/timer:panel")
 end
