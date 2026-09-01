@@ -67,6 +67,14 @@ noctalia.state.watch("timer.cmd", function(cmd)
     noctalia.log(`Unknown command: {cmd}`)
   end
 
+pcall(function()
+  if noctalia.sound and noctalia.sound.load then
+    noctalia.sound.load("alarm", "alarm.mp3", function(ok, err)
+      if not ok and err then
+        noctalia.log(`Failed to preload alarm sound: {err}`)
+      end
+    end)
+  end
 end)
 
 -- send notification and sound when timer finishes
@@ -85,8 +93,17 @@ local function notifyUser()
     if customPath and customPath ~= "" then
       audioTarget = customPath
     else
-      local pluginDir = noctalia.pluginDir or "/home/rousseau/.local/state/noctalia/plugins/materialized/official/timer"
-      audioTarget = `{pluginDir}/alarm.mp3`
+      local dir = ""
+      if type(noctalia.pluginDir) == "function" then
+        dir = noctalia.pluginDir() or ""
+      elseif type(noctalia.pluginDir) == "string" then
+        dir = noctalia.pluginDir
+      end
+
+      if dir == "" then
+        dir = "/home/rousseau/.local/state/noctalia/plugins/materialized/community/timer-sound"
+      end
+      audioTarget = `{dir}/alarm.mp3`
     end
 
     if noctalia.runAsync then

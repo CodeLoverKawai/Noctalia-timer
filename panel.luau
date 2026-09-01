@@ -195,10 +195,19 @@ function onToggle()
   end
 end
 
+local function formatForInput(seconds)
+  local m = seconds // 60
+  local s = seconds % 60
+  if m == 0 then
+    return tostring(s)
+  end
+  return string.format("%d%02d", m, s)
+end
+
 local function applyPreset(seconds)
   if STATE == "IDLE" then
     noctalia.state.set("timer.remaining", seconds)
-    inputDigits = tostring(seconds)
+    inputDigits = formatForInput(seconds)
     updateInputDigits()
     render()
   end
