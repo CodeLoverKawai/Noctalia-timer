@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "color": {
+      "description": "Color de acento para el tiempo y la barra de progreso",
+      "label": "Color"
+    },
+    "duration": {
+      "description": "Duración de la cuenta regresiva en segundos",
+      "label": "Duración (segundos)"
+    },
+    "show_idle": {
+      "description": "Mostrar u ocultar el widget cuando el temporizador esté en cero",
+      "label": "Mostrar contador inactivo en barra horizontal"
+    },
+    "show_progress": {
+      "label": "Mostrar barra de progreso"
+    },
+    "sound_enabled": {
+      "label": "Reproducir sonido de alarma",
+      "description": "Emitir una alarma sonora al finalizar la cuenta regresiva"
+    },
+    "custom_sound_path": {
+      "label": "Archivo de sonido personalizado",
+      "description": "Ruta absoluta a un archivo de audio (.mp3, .wav, .ogg)"
+    }
+  },
+  "ui": {
+    "duration_label": "Duración del Temporizador",
+    "duration_placeholder": "ej. 400 → 4:00",
+    "notify_body": "¡Tiempo cumplido!",
+    "notify_title": "Temporizador",
+    "pause": "Pausar",
+    "reset": "Reiniciar",
+    "start": "Iniciar"
+  }
+}

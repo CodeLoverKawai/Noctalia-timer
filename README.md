@@ -1,66 +1,30 @@
-# Timer
+# Noctalia Timer Plugin ⏱️🔔
 
-Timer is a countdown timer with three UI surfaces - a bar widget, a panel, and
-a desktop widget - that are all thin clients of one headless service. They
-share a single countdown through Noctalia's plugin state, so starting, pausing,
-or resetting from any surface updates them all live.
+An enhanced countdown timer plugin for **Noctalia Shell**, featuring fast one-click presets, multi-entry UI (bar, panel, desktop widget), and audible sound alarms upon completion.
 
-## Plugin
+---
 
-| Field | Value |
-| --- | --- |
-| ID | `noctalia/timer` |
-| Entries | Service: `timer`; bar widget: `bar`; panel: `panel`; desktop widget: `desktop` |
+## ✨ Features
 
-## Usage
+- **⏱️ Live Countdown:** Headless service driving synchronized states across bar, attached panel, and desktop widgets.
+- **⚡ Fast Presets:** Instant one-click timer buttons in the panel (`1m`, `5m`, `15m`, `25m Pomodoro`, `45m`).
+- **🔔 Sound Alarms:** Plays an audible alarm (`alarm.mp3`) when the countdown reaches 0:00 (powered by `pw-play` / PipeWire).
+- **🎨 Configurable:** Toggle sound alerts and specify custom sound files via Noctalia settings.
+- **🌐 Multilingual:** Full translations for English, Spanish, German, French, Arabic, Turkish, and Portuguese.
 
-### Bar Widget and Panel
+---
 
-The headless `timer` service owns countdown logic and state. The `bar` widget
-and `panel` communicate with the service through shared plugin state.
+## 🚀 Installation & Usage
 
-Add the `bar` bar widget to your bar. It displays an hourglass icon when idle,
-or the formatted countdown when running. Click the widget to open the timer
-panel for duration input and controls. When the timer completes, clicking the
-bar widget resets it.
+1. Clone or copy into your Noctalia plugins directory:
+   ```bash
+   cp -r . ~/.local/state/noctalia/plugins/materialized/official/timer/
+   ```
+2. Enable and place the `bar`, `panel`, or `desktop` widget in your Noctalia Shell settings.
+3. Click any preset or enter a duration (e.g. `2500` for 25:00) and press **Start**.
 
-On vertical bars, the widget shows an hourglass with the time as a tooltip.
-On horizontal bars, the widget shows the hourglass and countdown side by side,
-with an option to hide the countdown when idle.
+---
 
-You can also open the timer panel over IPC:
+## 📜 License
 
-```sh
-noctalia msg panel-toggle noctalia/timer:panel
-```
-
-### Desktop Widget
-
-Add the `desktop` desktop widget from Noctalia's desktop-widget editor. Because
-desktop widgets cannot take keyboard focus, it sets the duration with
-keyboard-free `-1m`/`+1m`/`+5m` buttons instead of typed input, then starts,
-pauses, and resets the countdown.
-
-The desktop widget owns no timer logic: it drives the same shared countdown as
-the bar widget and panel through the `timer` service, so all three stay in sync,
-and the service sends a notification when the countdown reaches zero.
-
-## Settings
-
-### Bar Widget
-
-| Setting | Type | Default | Description |
-| --- | --- | --- | --- |
-| `show_idle_on_horizontal` | `bool` | `true` | Shows or hides the countdown on horizontal bars when idle. |
-
-### Desktop Widget
-
-| Setting | Type | Default | Description |
-| --- | --- | --- | --- |
-| `color` | `color` | `primary` | Accent color for the time and progress bar. |
-| `show_progress` | `bool` | `true` | Shows or hides the progress bar. |
-
-## Notes
-
-This plugin is a reference implementation for `[[desktop_widget]]` entries,
-`[[widget]]` bar widget entries, and Noctalia's declarative `ui.*` widget tree.
+[MIT](LICENSE)

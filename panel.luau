@@ -58,13 +58,13 @@ local function render()
   local btnText = STATE == "RUNNING" and noctalia.tr("ui.pause") or noctalia.tr("ui.start")
   local btnVariant = STATE == "RUNNING" and "secondary" or "primary"
 
-  panel.render(ui.column({ gap = 12, padding = 16 }, {
+  panel.render(ui.column({ gap = 10, padding = 14 }, {
     ui.label({ text = noctalia.tr("ui.duration_label"), fontSize = 16, fontWeight = "bold", color = "primary" }),
-    ui.column({ gap = 8, padding = 8, fill = "surface_variant/0.4", radius = 8 }, {
+    ui.column({ gap = 6, padding = 8, fill = "surface_variant/0.4", radius = 8 }, {
       ui.row({ justify = "center" }, {
         ui.label({
           text = remainingText,
-          fontSize = 36,
+          fontSize = 34,
           fontWeight = "bold",
           color = remaining > 0 and "primary" or "outline",
         }),
@@ -79,6 +79,13 @@ local function render()
         onSubmit = "onInputSubmit",
         enabled = STATE == "IDLE"
       }),
+    }),
+    ui.row({ gap = 6, justify = "space_between" }, {
+      ui.button({ text = "1m", variant = "ghost", onClick = "onPreset1", enabled = STATE == "IDLE" }),
+      ui.button({ text = "5m", variant = "ghost", onClick = "onPreset5", enabled = STATE == "IDLE" }),
+      ui.button({ text = "15m", variant = "ghost", onClick = "onPreset15", enabled = STATE == "IDLE" }),
+      ui.button({ text = "25m", variant = "ghost", onClick = "onPreset25", enabled = STATE == "IDLE" }),
+      ui.button({ text = "45m", variant = "ghost", onClick = "onPreset45", enabled = STATE == "IDLE" }),
     }),
     ui.row({ gap = 8, justify = "space_between" }, {
       ui.button({
@@ -186,4 +193,33 @@ function onToggle()
   elseif STATE == "PAUSED" then
     resumeTimer()
   end
+end
+
+local function applyPreset(seconds)
+  if STATE == "IDLE" then
+    noctalia.state.set("timer.remaining", seconds)
+    inputDigits = tostring(seconds)
+    updateInputDigits()
+    render()
+  end
+end
+
+function onPreset1()
+  applyPreset(60)
+end
+
+function onPreset5()
+  applyPreset(300)
+end
+
+function onPreset15()
+  applyPreset(900)
+end
+
+function onPreset25()
+  applyPreset(1500)
+end
+
+function onPreset45()
+  applyPreset(2700)
 end

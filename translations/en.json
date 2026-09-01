@@ -14,6 +14,14 @@
     },
     "show_progress": {
       "label": "Show Progress Bar"
+    },
+    "sound_enabled": {
+      "label": "Play Alarm Sound",
+      "description": "Play an audible alarm sound when the countdown finishes"
+    },
+    "custom_sound_path": {
+      "label": "Custom Sound File",
+      "description": "Absolute path to a custom audio file (.mp3, .wav, .ogg)"
     }
   },
   "ui": {

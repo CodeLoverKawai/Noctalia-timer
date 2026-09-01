@@ -69,9 +69,32 @@ noctalia.state.watch("timer.cmd", function(cmd)
 
 end)
 
--- send notification and sound when implemented
+-- send notification and sound when timer finishes
 local function notifyUser()
   noctalia.notify(noctalia.tr("ui.notify_title"), noctalia.tr("ui.notify_body"))
+
+  local soundEnabled = noctalia.getConfig("sound_enabled")
+  if soundEnabled == nil then
+    soundEnabled = true
+  end
+
+  if soundEnabled then
+    local customPath = noctalia.getConfig("custom_sound_path")
+    local audioTarget = ""
+
+    if customPath and customPath ~= "" then
+      audioTarget = customPath
+    else
+      local pluginDir = noctalia.pluginDir or "/home/rousseau/.local/state/noctalia/plugins/materialized/official/timer"
+      audioTarget = `{pluginDir}/alarm.mp3`
+    end
+
+    if noctalia.runAsync then
+      noctalia.runAsync(`pw-play "{audioTarget}"`)
+    elseif noctalia.sound and noctalia.sound.play then
+      noctalia.sound.play("alarm")
+    end
+  end
 end
 
 function update()
