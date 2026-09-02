@@ -30,10 +30,17 @@ default = true
 
 [[setting]]
 key = "custom_sound_path"
-type = "string"
+type = "file"
 label_key = "settings.custom_sound_path.label"
 description_key = "settings.custom_sound_path.description"
 default = ""
+
+[[setting]]
+key = "repeat_alarm"
+type = "bool"
+label_key = "settings.repeat_alarm.label"
+description_key = "settings.repeat_alarm.description"
+default = true
 
 [[widget]]
 id = "bar"

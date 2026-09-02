@@ -22,6 +22,10 @@
     "custom_sound_path": {
       "label": "Archivo de sonido personalizado",
       "description": "Ruta absoluta a un archivo de audio (.mp3, .wav, .ogg)"
+    },
+    "repeat_alarm": {
+      "label": "Repetir sonido de alarma",
+      "description": "Repetir la alarma sonora continuamente hasta desactivarla con clic o reinicio"
     }
   },
   "ui": {

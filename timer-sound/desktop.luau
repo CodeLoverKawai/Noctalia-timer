@@ -34,7 +34,7 @@ local function timeColor()
 end
 
 local function render()
-  local remainingText = remaining > 0 and formattedTime or "--:--"
+  local remainingText = (remaining > 0 or STATE == "NOTIFY") and formattedTime or "--:--"
 
   local rows = {
     ui.label({
@@ -65,8 +65,8 @@ local function render()
     }))
   end
 
-  local btnText = STATE == "RUNNING" and noctalia.tr("ui.pause") or noctalia.tr("ui.start")
-  local btnVariant = STATE == "RUNNING" and "secondary" or "primary"
+  local btnText = (STATE == "RUNNING" and noctalia.tr("ui.pause")) or (STATE == "NOTIFY" and noctalia.tr("ui.reset")) or noctalia.tr("ui.start")
+  local btnVariant = (STATE == "RUNNING" and "secondary") or (STATE == "NOTIFY" and "destructive") or "primary"
 
   table.insert(rows, ui.row({ gap = 8, justify = "center" }, {
     ui.button({
@@ -78,7 +78,7 @@ local function render()
       text = btnText,
       variant = btnVariant,
       onClick = "onToggle",
-      enabled = remaining > 0,
+      enabled = remaining > 0 or STATE == "NOTIFY",
     }),
   }))
 
@@ -132,7 +132,9 @@ function onReset()
 end
 
 function onToggle()
-  if STATE == "RUNNING" then
+  if STATE == "NOTIFY" then
+    noctalia.state.set("timer.cmd", "RESET")
+  elseif STATE == "RUNNING" then
     noctalia.state.set("timer.cmd", "PAUSE")
   else
     -- IDLE (start) or PAUSED (resume): the service reads timer.remaining

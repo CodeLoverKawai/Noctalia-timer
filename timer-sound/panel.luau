@@ -56,28 +56,21 @@ local customSoundPath = ""
 local customSoundName = ""
 
 local function render()
-  local remainingText = remaining > 0 and formattedTime or "--:--"
+  local remainingText = (remaining > 0 or STATE == "NOTIFY") and formattedTime or "--:--"
 
-  local btnText = STATE == "RUNNING" and noctalia.tr("ui.pause") or noctalia.tr("ui.start")
-  local btnVariant = STATE == "RUNNING" and "secondary" or "primary"
+  local btnText = (STATE == "RUNNING" and noctalia.tr("ui.pause")) or (STATE == "NOTIFY" and noctalia.tr("ui.reset")) or noctalia.tr("ui.start")
+  local btnVariant = (STATE == "RUNNING" and "secondary") or (STATE == "NOTIFY" and "destructive") or "primary"
   local soundLabel = "🔔 Alarma: " .. (customSoundName ~= "" and customSoundName or "Por defecto (alarm.mp3)")
 
   panel.render(ui.column({ gap = 10, padding = 14 }, {
-    ui.row({ justify = "space_between", align = "center" }, {
-      ui.label({ text = noctalia.tr("ui.duration_label"), fontSize = 16, fontWeight = "bold", color = "primary" }),
-      ui.button({
-        text = "🎵 Cambiar audio",
-        variant = "ghost",
-        onClick = "onPickAudio",
-      }),
-    }),
+    ui.label({ text = noctalia.tr("ui.duration_label"), fontSize = 16, fontWeight = "bold", color = "primary" }),
     ui.column({ gap = 6, padding = 8, fill = "surface_variant/0.4", radius = 8 }, {
       ui.row({ justify = "center" }, {
         ui.label({
           text = remainingText,
           fontSize = 34,
           fontWeight = "bold",
-          color = remaining > 0 and "primary" or "outline",
+          color = (remaining > 0 or STATE == "NOTIFY") and "primary" or "outline",
         }),
       }),
       ui.input({
@@ -113,7 +106,7 @@ local function render()
         text = btnText,
         variant = btnVariant,
         onClick = "onToggle",
-        enabled = remaining > 0
+        enabled = remaining > 0 or STATE == "NOTIFY"
       }),
     }),
   }))
@@ -155,8 +148,8 @@ local function updateSoundInfo()
 end
 
 function onOpen(_context)
-  STATE = noctalia.state.get("timer.state")
-  remaining = noctalia.state.get("timer.remaining")
+  STATE = noctalia.state.get("timer.state") or "IDLE"
+  remaining = noctalia.state.get("timer.remaining") or 0
   formattedTime = noctalia.state.get("timer.formattedTime") or "0"
   updateSoundInfo()
   resetInputDigits()
@@ -176,18 +169,18 @@ noctalia.state.watch("timer.state", function(value)
     resetInputDigits()
   end
 
-  STATE = value
+  STATE = value or "IDLE"
 
   render()
 end)
 
 noctalia.state.watch("timer.formattedTime", function(value)
-  formattedTime = value
+  formattedTime = value or "0"
   render()
 end)
 
 noctalia.state.watch("timer.remaining", function(value)
-  remaining = value
+  remaining = value or 0
   render()
 end)
 
@@ -221,11 +214,14 @@ function onInputSubmit()
 end
 
 function onToggle()
-  if STATE == "RUNNING" then
+  local currentState = noctalia.state.get("timer.state") or STATE
+  if currentState == "NOTIFY" then
+    noctalia.state.set("timer.cmd", "RESET")
+  elseif currentState == "RUNNING" then
     noctalia.state.set("timer.cmd", "PAUSE")
-  elseif STATE == "IDLE" then
+  elseif currentState == "IDLE" then
     playTimer()
-  elseif STATE == "PAUSED" then
+  elseif currentState == "PAUSED" then
     resumeTimer()
   end
 end
@@ -266,21 +262,4 @@ end
 
 function onPreset45()
   applyPreset(2700)
-end
-
-function onPickAudio()
-  if noctalia.runAsync then
-    local cmd = 'zenity --file-selection --title="Seleccionar sonido de alarma" --file-filter="Archivos de audio | *.mp3 *.wav *.ogg *.flac" 2>/dev/null || kdialog --getopenfilename ~ "*.mp3 *.wav *.ogg *.flac" 2>/dev/null'
-    noctalia.runAsync(cmd, function(result)
-      if result and result.stdout then
-        local picked = result.stdout:gsub("[\r\n]+$", "")
-        if picked and picked ~= "" then
-          noctalia.state.set("timer.custom_sound_path", picked)
-          customSoundPath = picked
-          customSoundName = picked:match("([^/]+)$") or picked
-          render()
-        end
-      end
-    end)
-  end
 end

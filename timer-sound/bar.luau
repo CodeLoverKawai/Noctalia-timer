@@ -98,9 +98,14 @@ noctalia.state.watch("timer.formattedTime", function(value)
 end)
 
 function onClick()
-  if STATE == "NOTIFY" then
+  local currentState = noctalia.state.get("timer.state") or STATE
+  if currentState == "NOTIFY" then
     noctalia.state.set("timer.cmd", "RESET")
     return
   end
   noctalia.togglePanel("codeloverkawai/timer-sound:panel")
+end
+
+function onRightClick()
+  noctalia.state.set("timer.cmd", "RESET")
 end
